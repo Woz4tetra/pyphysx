@@ -4,23 +4,30 @@
 # Created on: 1/19/21
 #     Author: Vladimir Petrik <vladimir.petrik@cvut.cz>
 
-import numpy as np
-
 import meshcat
 import meshcat.geometry as g
+import numpy as np
 import trimesh.exchange.obj
-
-from pyphysx import ShapeFlag, GeometryType
-from pyphysx_render.render_base import ViewerBase
 from pyphysx_utils.transformations import multiply_transformations, pose_to_transformation_matrix
+
+from pyphysx import GeometryType, ShapeFlag
+from pyphysx_render.render_base import ViewerBase
 
 
 class MeshcatViewer(ViewerBase):
-
-    def __init__(self, open_meshcat=False, print_url=False, wait_for_open=False, zmq_url=None,
-                 show_frames=False, frame_scale=1., object_prefix="objects",
-                 render_to_animation=False, animation_fps=30,
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        open_meshcat=False,
+        print_url=False,
+        wait_for_open=False,
+        zmq_url=None,
+        show_frames=False,
+        frame_scale=1.0,
+        object_prefix="objects",
+        render_to_animation=False,
+        animation_fps=30,
+        **kwargs,
+    ) -> None:
         super().__init__()
         self.vis = meshcat.Visualizer(zmq_url=zmq_url)
         if open_meshcat:
@@ -46,7 +53,7 @@ class MeshcatViewer(ViewerBase):
         return self.vis[self.object_prefix] if self._vis_group is None else self._vis_group[self.object_prefix]
 
     def vis_frame(self, actor_id):
-        return self.vis_group['frame' + str(actor_id)]
+        return self.vis_group["frame" + str(actor_id)]
 
     def vis_actor(self, actor_id):
         return self.vis_group[str(actor_id)]
@@ -103,15 +110,15 @@ class MeshcatViewer(ViewerBase):
         self.actors_and_offsets.clear()
 
     def _get_shape_material(self, shape):
-        texture = shape.get_user_data().get('visual_mesh_texture', None) if shape.get_user_data() is not None else None
+        texture = shape.get_user_data().get("visual_mesh_texture", None) if shape.get_user_data() is not None else None
         if texture is not None:
-            return g.MeshLambertMaterial(map=texture, opacity=1.)
+            return g.MeshLambertMaterial(map=texture, opacity=1.0)
         clr = [int(v) for v in self.get_shape_color(shape=shape)]
-        color = int(clr[0]) * 256 ** 2 + int(clr[1]) * 256 + int(clr[2])
-        return g.MeshLambertMaterial(color=color, opacity=clr[3] / 255.)
+        color = int(clr[0]) * 256**2 + int(clr[1]) * 256 + int(clr[2])
+        return g.MeshLambertMaterial(color=color, opacity=clr[3] / 255.0)
 
     def _get_shape_geometry(self, shape):
-        visual_mesh = shape.get_user_data().get('visual_mesh', None) if shape.get_user_data() is not None else None
+        visual_mesh = shape.get_user_data().get("visual_mesh", None) if shape.get_user_data() is not None else None
         if visual_mesh is not None:
             try:
                 exp_obj = trimesh.exchange.obj.export_obj(visual_mesh)
@@ -120,7 +127,7 @@ class MeshcatViewer(ViewerBase):
             return g.ObjMeshGeometry.from_stream(trimesh.util.wrap_as_stream(exp_obj))
         elif shape.get_geometry_type() == GeometryType.CONVEXMESH:
             data = shape.get_shape_data()  # N x 9 - i.e. 3 triangles
-            faces = np.arange(0, data.shape[0] * 3, 1, dtype=np.int).reshape(-1, 3)
+            faces = np.arange(0, data.shape[0] * 3, 1, dtype=int).reshape(-1, 3)
             return g.TriangularMeshGeometry(vertices=data.reshape(-1, 3), faces=faces)
         elif shape.get_geometry_type() == GeometryType.SPHERE:
             return g.Sphere(radius=shape.get_sphere_radius())
@@ -130,6 +137,6 @@ class MeshcatViewer(ViewerBase):
             raise NotImplementedError("Not supported geometry type.")
 
     def publish_animation(self, play=True, repetitions=1):
-        """ If animation was recorded, then publish to meshcat server. """
+        """If animation was recorded, then publish to meshcat server."""
         if self.animation is not None:
             self.vis.set_animation(self.animation, play=play, repetitions=repetitions)

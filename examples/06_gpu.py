@@ -6,38 +6,44 @@
 
 import itertools
 import multiprocessing
+import time
 
-from pyphysx_utils.rate import Rate
-from pyphysx import *
 import numpy as np
 import pandas as pd
-import time
 import trimesh
+from pyphysx_utils.rate import Rate
+
+from pyphysx import *
 
 
 def do_sim(i, return_dict, prop):
-    """ Perform simulation in separate process. That ensures that the physics is initialized for each set of
-    properties. There is always just one Physics for the process. """
-    if prop['gpu']:
+    """Perform simulation in separate process. That ensures that the physics is initialized for each set of
+    properties. There is always just one Physics for the process."""
+    if prop["gpu"]:
         Physics.init_gpu()
-    Physics.set_num_cpu(prop['num_cpus'])
-    scene = Scene() if not prop['gpu'] else Scene(
-        scene_flags=[SceneFlag.ENABLE_PCM, SceneFlag.ENABLE_GPU_DYNAMICS, SceneFlag.ENABLE_STABILIZATION],
-        broad_phase_type=BroadPhaseType.GPU,
-        gpu_max_num_partitions=8, gpu_dynamic_allocation_scale=8.,
+    Physics.set_num_cpu(prop["num_cpus"])
+    scene = (
+        Scene()
+        if not prop["gpu"]
+        else Scene(
+            scene_flags=[SceneFlag.ENABLE_PCM, SceneFlag.ENABLE_GPU_DYNAMICS, SceneFlag.ENABLE_STABILIZATION],
+            broad_phase_type=BroadPhaseType.GPU,
+            gpu_max_num_partitions=8,
+            gpu_dynamic_allocation_scale=8.0,
+        )
     )
-    obj: trimesh.Scene = trimesh.load('spade.obj', split_object=True, group_material=False)
+    obj: trimesh.Scene = trimesh.load("spade.obj", split_object=True, group_material=False)
     mat = Material(static_friction=0.1, dynamic_friction=0.1, restitution=0.5)
     scene.add_actor(RigidStatic.create_plane(material=mat))
-    for _ in range(prop['num_objects']):
+    for _ in range(prop["num_objects"]):
         o = RigidDynamic()
-        if prop['obj_type'] == 'sphere':
+        if prop["obj_type"] == "sphere":
             o.attach_shape(Shape.create_sphere(0.05, mat))
-        elif prop['obj_type'] == 'spade':
+        elif prop["obj_type"] == "spade":
             for g in obj.geometry.values():
                 o.attach_shape(Shape.create_convex_mesh_from_points(g.vertices, mat, scale=1e-3))
-        o.set_global_pose(np.random.uniform(0.5, 10., size=3))
-        o.set_mass(1.)
+        o.set_global_pose(np.random.uniform(0.5, 10.0, size=3))
+        o.set_mass(1.0)
         scene.add_actor(o)
 
     start_time = time.time()
@@ -54,22 +60,24 @@ manager = multiprocessing.Manager()
 return_dict = manager.dict()
 
 dicts = {
-    'obj_type': ['sphere', 'spade'],
-    'num_objects': [1, 10, 100, 1000, 5000, 10000, 25000, 50000],
-    'gpu': [True, False],
-    'num_cpus': [16, 8, 4, 2, 1, 0],
+    "obj_type": ["sphere", "spade"],
+    "num_objects": [1, 10, 100, 1000, 5000, 10000, 25000, 50000],
+    "gpu": [True, False],
+    "num_cpus": [16, 8, 4, 2, 1, 0],
 }
 
 properties = list(dict(zip(dicts, x)) for x in itertools.product(*dicts.values()))
 gpu_initialised = False
 
 for i, prop in enumerate(properties):
-    if prop['obj_type'] == 'spade' and prop['num_objects'] > 10000:
+    if prop["obj_type"] == "spade" and prop["num_objects"] > 10000:
         break
     print(i, prop)
     p = multiprocessing.Process(target=do_sim, args=(i, return_dict, prop))
     p.start()
     p.join()
-    performance = performance.append({**prop, **{'computation_time': return_dict[i]}}, ignore_index=True)
-    performance.to_csv('06_performance.csv')
-    print('Computation time: ', return_dict[i])
+    performance = pd.concat(
+        [performance, pd.DataFrame.from_dict({**prop, **{"computation_time": [return_dict[i]]}})], ignore_index=True
+    )
+    performance.to_csv("06_performance.csv")
+    print("Computation time: ", return_dict[i])
