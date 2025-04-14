@@ -36,7 +36,7 @@ class UrdfParserTestCase(unittest.TestCase):
     def test_urdf_cyliner(self):
         robot = URDFRobot(urdf_path=Path(os.path.realpath(__file__)).parent.joinpath('data/test_urdf_cylinder.urdf'))
         link: Link = list(robot.links.values())[0]
-        shape: Shape = link.actor.get_atached_shapes()[0]
+        shape: Shape = link.actor.get_attached_shapes()[0]
         data = shape.get_shape_data()
         points = data.reshape(-1, 3)
         r = 0.1
@@ -51,7 +51,7 @@ class UrdfParserTestCase(unittest.TestCase):
     def test_urdf_dae(self):
         robot = URDFRobot(urdf_path=Path(os.path.realpath(__file__)).parent.joinpath('data/test_urdf_dae.urdf'))
         link: Link = list(robot.links.values())[0]
-        shape: Shape = link.actor.get_atached_shapes()[0]
+        shape: Shape = link.actor.get_attached_shapes()[0]
         self.assertTrue('visual_mesh' in shape.get_user_data())
 
     def test_urdf_sphere_instead_of_mesh(self):
@@ -60,7 +60,7 @@ class UrdfParserTestCase(unittest.TestCase):
         for i, path in enumerate([no_sphere, sphere]):
             robot = URDFRobot(urdf_path=Path(os.path.realpath(__file__)).parent.joinpath(path))
             link: Link = list(robot.links.values())[0]
-            shape: Shape = link.actor.get_atached_shapes()[0]
+            shape: Shape = link.actor.get_attached_shapes()[0]
             self.assertEqual(shape.get_geometry_type(), GeometryType.SPHERE if i == 1 else GeometryType.CONVEXMESH)
 
 

@@ -55,6 +55,10 @@ public:
         get_physx_ptr()->addActor(*actor.get_physx_ptr());
     }
 
+    void remove_actor(RigidActor actor) {
+        get_physx_ptr()->removeActor(*actor.get_physx_ptr());
+    }
+
     auto get_static_rigid_actors() {
         const auto n = get_physx_ptr()->getNbActors(physx::PxActorTypeFlag::eRIGID_STATIC);
         std::vector<physx::PxRigidActor *> actors(n);
@@ -80,6 +84,10 @@ public:
         std::vector<physx::PxAggregate *> aggs(n);
         get_physx_ptr()->getAggregates(&aggs[0], n);
         return from_vector_of_physx_ptr<Aggregate>(aggs);
+    }
+
+    void remove_aggregate(Aggregate agg) {
+        get_physx_ptr()->removeAggregate(*agg.get_physx_ptr());
     }
 
 public:

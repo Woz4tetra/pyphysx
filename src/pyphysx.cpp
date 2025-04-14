@@ -148,12 +148,18 @@ PYBIND11_MODULE(_pyphysx, m) {
             .def("add_actor", &Scene::add_actor,
                  arg("actor")
             )
+            .def("remove_actor", &Scene::remove_actor,
+                 arg("actor")
+             )
             .def("get_static_rigid_actors", &Scene::get_static_rigid_actors)
             .def("get_dynamic_rigid_actors", &Scene::get_dynamic_rigid_actors)
             .def("add_aggregate", &Scene::add_aggregate,
                  arg("agg")
             )
             .def("get_aggregates", &Scene::get_aggregates)
+            .def("remove_aggregate", &Scene::remove_aggregate,
+                 arg("agg")
+             )
             .def_readwrite("simulation_time", &Scene::simulation_time);
 
     py::class_<Aggregate>(m, "Aggregate")
@@ -256,7 +262,7 @@ PYBIND11_MODULE(_pyphysx, m) {
             .def("detach_shape", &RigidActor::detach_shape,
                  arg("shape")
             )
-            .def("get_atached_shapes", &RigidActor::get_atached_shapes)
+            .def("get_attached_shapes", &RigidActor::get_attached_shapes)
             .def("disable_gravity", &RigidActor::disable_gravity)
             .def("enable_gravity", &RigidActor::enable_gravity)
             .def("set_user_data", &RigidActor::set_user_data,

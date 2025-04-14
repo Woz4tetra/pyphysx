@@ -144,7 +144,7 @@ class PyRenderBase(ViewerBase):
         return Node(mesh=self.shape_to_mesh(shape=shape), matrix=pose)
 
     def actor_to_node(self, actor, flags):
-        shapes = [s for s in actor.get_atached_shapes() if PyRenderBase.has_shape_any_of_flags(s, flags)]
+        shapes = [s for s in actor.get_attached_shapes() if PyRenderBase.has_shape_any_of_flags(s, flags)]
         if len(shapes) == 0:
             return None
         return Node(children=[self.shape_to_node(s) for s in shapes])

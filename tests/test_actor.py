@@ -40,7 +40,7 @@ class ActorTest(unittest.TestCase):
         s2 = Shape.create_box([0.2] * 3, Material())
         actor.attach_shape(s1)
         actor.attach_shape(s2)
-        shapes = actor.get_atached_shapes()
+        shapes = actor.get_attached_shapes()
         self.assertEqual(2, len(shapes))
 
     def test_dampings(self):

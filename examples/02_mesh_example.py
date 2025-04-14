@@ -19,7 +19,7 @@ actor.set_global_pose([0.5, 0.5, 1.0])
 actor.set_mass(1.)
 
 # Add custom coloring to the shapes
-for i, s in enumerate(actor.get_atached_shapes()):
+for i, s in enumerate(actor.get_attached_shapes()):
     if i == 10:
         s.set_user_data(dict(color='tab:blue'))
     elif i == 9:

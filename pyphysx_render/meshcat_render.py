@@ -70,7 +70,7 @@ class MeshcatViewer(ViewerBase):
         actors = scene.get_dynamic_rigid_actors() + scene.get_static_rigid_actors()
         start_index = self.get_start_index_for_next_scene()
         for i, actor in enumerate(actors, start=start_index):
-            for j, shape in enumerate(actor.get_atached_shapes()):
+            for j, shape in enumerate(actor.get_attached_shapes()):
                 if not self.has_shape_any_of_flags(shape, render_shapes_with_one_of_flags):
                     continue
                 if shape.get_geometry_type() == GeometryType.PLANE:  # plane is ignored as there is a grid in meshcat
@@ -102,7 +102,7 @@ class MeshcatViewer(ViewerBase):
     def clear_physx_scenes(self):
         for actors, _, start_index in self.actors_and_offsets:
             for i, actor in enumerate(actors, start=start_index):
-                for j, shape in enumerate(actor.get_atached_shapes()):
+                for j, shape in enumerate(actor.get_attached_shapes()):
                     self.vis_shape(i, j).delete()
                 self.vis_actor(i).delete()
                 self.vis_frame(i).delete()

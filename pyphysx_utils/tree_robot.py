@@ -185,7 +185,7 @@ class Link(anytree.Node):
     this link to the parent link.
     """
 
-    def __init__(self, name, actor=None):
+    def __init__(self, name, actor: Optional[RigidDynamic]=None):
         super().__init__(name)
         self.actor = actor
         self.joint_from_parent: Optional[Joint] = None

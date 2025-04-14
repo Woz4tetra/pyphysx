@@ -52,7 +52,7 @@ obj: trimesh.Scene = trimesh.load('spade.obj', split_object=True, group_material
 for g in obj.geometry.values():
     actor.attach_shape(Shape.create_convex_mesh_from_points(g.vertices, Material(restitution=1.), scale=1e-3))
 # Add custom coloring to the shapes
-for i, s in enumerate(actor.get_atached_shapes()):
+for i, s in enumerate(actor.get_attached_shapes()):
     if i == 10:
         s.set_user_data(dict(color='tab:blue'))
     elif i == 9:
